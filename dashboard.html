@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter Auto-Apply Dashboard</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel standalone for in-browser JSX parsing -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons (for professional icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --bg-color: #0B0F19;
+            /* Very dark blue/black */
+            --surface-color: #111827;
+            --surface-hover: #1F2937;
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --border: #374151;
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --font-sans: 'Inter', sans-serif;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.5;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header h1 i {
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+
+        .panel {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .panel:hover {
+            border-color: #4B5563;
+            box-shadow: var(--shadow-md);
+        }
+
+        .panel-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .panel-title i {
+            color: var(--text-muted);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .text-input {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .text-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-large {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .tag-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .tag {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .file-drop-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .file-drop-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        .file-drop-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-drop-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .file-drop-content i {
+            font-size: 2.5rem;
+            color: var(--text-muted);
+        }
+
+        .file-name {
+            color: var(--primary);
+            font-weight: 500;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .terminal-container {
+            background-color: #050505;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 350px;
+            max-height: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .log-entry {
+            display: flex;
+            gap: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .log-msg.info {
+            color: var(--text-main);
+        }
+
+        .log-msg.system {
+            color: var(--primary);
+        }
+
+        .log-msg.success {
+            color: var(--success);
+        }
+
+        .log-msg.warning {
+            color: var(--warning);
+        }
+
+        .log-msg.error {
+            color: var(--danger);
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const ProfileDashboard = () => {
+            return (
+                <div className="panel">
+                    <h2 className="panel-title">
+                        <i className="ph ph-user-circle"></i> Operator Profile
+                    </h2>
+                    <div>
+                        <div className="info-row">
+                            <span className="info-label"><i className="ph ph-identification-card"></i> Full Name</span>
+                            <span className="info-value">Miguel Lima</span>
+                        </div>
+                        <div className="info-row">
+                            <span className="info-label"><i className="ph ph-envelope-simple"></i> Email Address</span>
+                            <span className="info-value">miguellimadossantos2704@gmail.com</span>
+                        </div>
+                        <div className="info-row">
+                            <span className="info-label"><i className="ph ph-phone"></i> Phone Number</span>
+                            <span className="info-value">(61) 99818-2704</span>
+                        </div>
+                        <div className="info-row" style={{ marginTop: '0.5rem', border: 'none' }}>
+                            <span className="info-label"><i className="ph ph-shield-check"></i> Status</span>
+                            <span className="badge"><div className="pulse"></div> System Online & Secure</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const PDFUpload = ({ onUploadSuccess }) => {
+            const [file, setFile] = useState(null);
+            const [uploading, setUploading] = useState(false);
+
+            const handleFileChange = (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    setFile(e.target.files[0]);
+                }
+            };
+
+            const handleUpload = async () => {
+                if (!file) return;
+                setUploading(true);
+
+                // Simulate upload delay
+                setTimeout(() => {
+                    onUploadSuccess();
+                    setUploading(false);
+                }, 1500);
+            };
+
+            return (
+                <div className="panel">
+                    <h2 className="panel-title">
+                        <i className="ph ph-file-pdf"></i> Resume Payload
+                    </h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div className="file-drop-area">
+                            <input
+                                type="file"
+                                accept=".pdf"
+                                onChange={handleFileChange}
+                            />
+                            <div className="file-drop-content">
+                                {file ? (
+                                    <>
+                                        <i className="ph ph-file-text" style={{ color: 'var(--primary)' }}></i>
+                                        <div className="file-name">{file.name}</div>
+                                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Click to replace file</div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="ph ph-upload-simple"></i>
+                                        <div><strong>Click to upload</strong> or drag and drop</div>
+                                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>PDF (max. 10MB)</div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                        {file && (
+                            <button
+                                className="btn"
+                                onClick={handleUpload}
+                                disabled={uploading}
+                            >
+                                {uploading ? (
+                                    <><i className="ph ph-spinner ph-spin"></i> Uploading Document...</>
+                                ) : (
+                                    <><i className="ph ph-cloud-arrow-up"></i> Upload Resume</>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const JobSearch = ({ onSearchChange }) => {
+            const [keywords, setKeywords] = useState('');
+
+            const handleChange = (e) => {
+                setKeywords(e.target.value);
+                onSearchChange(e.target.value);
+            };
+
+            return (
+                <div className="panel">
+                    <h2 className="panel-title">
+                        <i className="ph ph-magnifying-glass"></i> Target Job Parameters
+                    </h2>
+                    <div className="input-group">
+                        <label htmlFor="keywords">Keywords / Skills (comma separated)</label>
+                        <input
+                            id="keywords"
+                            type="text"
+                            className="text-input"
+                            placeholder="e.g., Python, React, Data Science"
+                            value={keywords}
+                            onChange={handleChange}
+                        />
+                        <div className="tag-container">
+                            {keywords.split(/[ ,]+/).map((kw, i) => kw.trim() && (
+                                <span key={i} className="tag">
+                                    <i className="ph ph-hash"></i> {kw.trim()}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AutomationControl = ({ keywords, isReady }) => {
+            const [logs, setLogs] = useState([]);
+            const [isRunning, setIsRunning] = useState(false);
+            const logsEndRef = useRef(null);
+            const socketRef = useRef(null);
+
+            const scrollToBottom = () => {
+                logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            useEffect(() => {
+                scrollToBottom();
+            }, [logs]);
+
+            const addLog = (message, type = 'info') => {
+                setLogs(prev => [...prev, {
+                    time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: "numeric", minute: "numeric", second: "numeric" }),
+                    message,
+                    type
+                }]);
+            };
+
+            useEffect(() => {
+                addLog('Dashboard connected (Mock Mode). Ready to simulate automation.', 'system');
+            }, []);
+
+            const startAutomation = async () => {
+                setIsRunning(true);
+                setLogs([]);
+                addLog('Iniciando varredura...', 'system');
+                addLog(`Buscando vagas para as palavras-chave: [${keywords || 'Qualquer'}]`, 'info');
+
+                // Simulate process with delays
+                const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+                try {
+                    await delay(1500);
+                    addLog('Conectando às plataformas de emprego (Joinrs, LinkedIn)...', 'system');
+
+                    await delay(2000);
+                    addLog('Vaga encontrada: Profissional de Tecnologia na Empresa X', 'info');
+
+                    await delay(1500);
+                    addLog('Analisando compatibilidade e preenchendo formulário...', 'system');
+
+                    await delay(2000);
+                    addLog('Currículo enviado para Empresa X com sucesso!', 'success');
+
+                    await delay(1500);
+                    addLog('Vaga encontrada: Especialista na Startup Y', 'info');
+
+                    await delay(2000);
+                    addLog('Currículo enviado para Startup Y!', 'success');
+
+                    await delay(1500);
+                    addLog('Varredura concluída. Automação finalizada [Status: Success].', 'success');
+                } catch (error) {
+                    addLog(`Erro: ${error.message}`, 'error');
+                } finally {
+                    setIsRunning(false);
+                }
+            };
+
+            return (
+                <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <h2 className="panel-title">
+                        <i className="ph ph-robot"></i> Automation Engine
+                    </h2>
+
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginTop: '0.5rem', gap: '1.5rem' }}>
+                        <div>
+                            <button
+                                className="btn btn-large"
+                                disabled={!isReady || isRunning}
+                                onClick={startAutomation}
+                                style={{
+                                    backgroundColor: isRunning ? 'var(--border)' : 'var(--primary)',
+                                    color: isRunning ? 'var(--text-muted)' : 'white'
+                                }}
+                            >
+                                {isRunning ? (
+                                    <><i className="ph ph-spinner ph-spin"></i> Sequence Running...</>
+                                ) : (
+                                    <><i className="ph ph-paper-plane-tilt"></i> Start Auto-Apply</>
+                                )}
+                            </button>
+
+                            {!isReady && (
+                                <p style={{ color: 'var(--danger)', fontSize: '0.85rem', textAlign: 'center', marginTop: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                                    <i className="ph ph-warning-circle"></i> Resume upload required before start
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="terminal-container">
+                            <div className="terminal-header">
+                                <span><i className="ph ph-terminal-window"></i> System Logs</span>
+                                <div><i className="ph ph-dots-three"></i></div>
+                            </div>
+
+                            {logs.length === 0 && (
+                                <div style={{ color: 'var(--text-muted)' }}>&gt; Ready to execute commands...</div>
+                            )}
+
+                            {logs.map((log, index) => (
+                                <div key={index} className="log-entry">
+                                    <span className="log-time">[{log.time}]</span>
+                                    <span className={`log-msg ${log.type}`}>
+                                        {log.type === 'success' && <i className="ph ph-check-circle" style={{ marginRight: '0.25em' }}></i>}
+                                        {log.type === 'error' && <i className="ph ph-x-circle" style={{ marginRight: '0.25em' }}></i>}
+                                        {log.type === 'warning' && <i className="ph ph-warning" style={{ marginRight: '0.25em' }}></i>}
+                                        {log.message}
+                                    </span>
+                                </div>
+                            ))}
+                            <div ref={logsEndRef} />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [searchKeywords, setSearchKeywords] = useState('');
+            const [cvUploaded, setCvUploaded] = useState(false);
+
+            return (
+                <div className="app-container">
+                    <header className="header">
+                        <h1><i className="ph-fill ph-briefcase"></i> JobHunter Auto-Apply</h1>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>v1.0.0</span>
+                        </div>
+                    </header>
+
+                    <div className="dashboard-grid">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <ProfileDashboard />
+                            <PDFUpload onUploadSuccess={() => setCvUploaded(true)} />
+                            <JobSearch onSearchChange={setSearchKeywords} />
+                        </div>
+
+                        <div style={{ height: '100%' }}>
+                            <AutomationControl
+                                keywords={searchKeywords}
+                                isReady={cvUploaded}
+                            />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
